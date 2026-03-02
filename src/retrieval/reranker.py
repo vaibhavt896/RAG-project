@@ -104,8 +104,14 @@ class CrossEncoderReranker:
 
 
 def get_reranker():
-    """Factory: returns CrossEncoderReranker if enabled, else LightweightReranker."""
+    """Factory: returns CrossEncoderReranker if enabled and installed, else LightweightReranker."""
     enable = os.environ.get("ENABLE_RERANKER", "true").lower()
     if enable in ("false", "0", "no"):
         return LightweightReranker()
-    return CrossEncoderReranker()
+        
+    try:
+        import sentence_transformers
+        return CrossEncoderReranker()
+    except ImportError:
+        # Fall back gracefully if the library was skipped to save memory
+        return LightweightReranker()
