@@ -71,6 +71,23 @@ def load_txt(path: str) -> RawDocument:
 
 
 def load_url(url: str) -> RawDocument:
+    # Detect PDF URLs and handle them properly
+    if url.lower().endswith(".pdf"):
+        import tempfile
+        response = httpx.get(url, timeout=60, follow_redirects=True)
+        response.raise_for_status()
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+            tmp.write(response.content)
+            tmp_path = tmp.name
+        doc = load_pdf(tmp_path)
+        # Override metadata to show original URL
+        doc.source = url
+        doc.metadata["url"] = url
+        doc.metadata["title"] = url.split("/")[-1].replace(".pdf", "")
+        import os
+        os.unlink(tmp_path)
+        return doc
+
     response = httpx.get(url, timeout=30, follow_redirects=True)
     soup = BeautifulSoup(response.text, "html.parser")
     # Remove nav, footer, scripts

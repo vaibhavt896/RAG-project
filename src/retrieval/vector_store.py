@@ -22,7 +22,7 @@ class GeminiEmbeddingFunction(ef.EmbeddingFunction):
     def __call__(self, input: list[str]) -> list[list[float]]:
         _configure_genai()
         embeddings = []
-        model = os.getenv("EMBEDDING_MODEL", "models/text-embedding-004")
+        model = os.getenv("EMBEDDING_MODEL", "text-embedding-004")
         # Batch in groups of 10 to stay within rate limits
         for i in range(0, len(input), 10):
             batch = input[i:i + 10]

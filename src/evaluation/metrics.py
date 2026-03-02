@@ -118,7 +118,7 @@ Return JSON: {{"questions": ["q1", "q2", ...]}}"""
         return 0.0
 
     # Embed the original question
-    embed_model = os.getenv("EMBEDDING_MODEL", "models/text-embedding-004")
+    embed_model = os.getenv("EMBEDDING_MODEL", "text-embedding-004")
     orig_result = genai.embed_content(
         model=embed_model,
         content=question,
