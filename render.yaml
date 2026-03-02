@@ -17,7 +17,7 @@ services:
       - key: ENABLE_RERANKER
         value: "false"
       - key: EMBEDDING_MODEL
-        value: text-embedding-004
+        value: models/gemini-embedding-001
       - key: LLM_MODEL
         value: gemini-1.5-flash
       - key: TOP_K_RETRIEVAL
