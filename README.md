@@ -10,7 +10,7 @@
 [![Gemini](https://img.shields.io/badge/Powered%20by-Google%20Gemini-4285F4?style=flat-square&logo=google&logoColor=white)](https://ai.google.dev)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
-[**Live Demo**](https://rag-project-frontend.vercel.app) · [**API Docs**](https://rag-project-api.onrender.com/docs) · [**Report Bug**](https://github.com/vaibhavt896/RAG-project/issues)
+[**Live Demo**](https://rag-project-liard.vercel.app) · [**API Docs**](https://rag-project-wp25.onrender.com/docs) · [**Report Bug**](https://github.com/vaibhavt896/RAG-project/issues)
 
 </div>
 
