@@ -13,7 +13,7 @@ but too slow to run on the entire corpus. So we:
 2. Re-rank top-20 accurately with cross-encoder
 3. Take top-5 for generation
 """
-from sentence_transformers import CrossEncoder
+# CrossEncoder is lazy-imported in _load_model() to reduce startup memory
 
 
 class CrossEncoderReranker:
@@ -22,12 +22,18 @@ class CrossEncoderReranker:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
+            cls._instance.model = None  # Lazy load to save startup memory
+        return cls._instance
+
+    def _load_model(self):
+        """Lazy load the model on first use — keeps startup memory low."""
+        if self.model is None:
+            from sentence_transformers import CrossEncoder
             # This model is ~80MB, fast on CPU, production-ready
-            cls._instance.model = CrossEncoder(
+            self.model = CrossEncoder(
                 "cross-encoder/ms-marco-MiniLM-L-6-v2",
                 max_length=512,
             )
-        return cls._instance
 
     def rerank(
         self,
@@ -35,6 +41,8 @@ class CrossEncoderReranker:
         candidates: list[dict],
         top_k: int = 5,
     ) -> list[dict]:
+        self._load_model()
+
         if not candidates:
             return []
 
