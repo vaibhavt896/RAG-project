@@ -1,0 +1,104 @@
+version: "3.9"
+
+services:
+  # ── PostgreSQL 16 ──────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: liagent
+      POSTGRES_PASSWORD: liagent
+      POSTGRES_DB: liagent
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U liagent"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis 7 ────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── FastAPI Backend ────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - chromadata:/app/chroma_data
+
+  # ── Celery Worker ──────────────────────────────
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A app.celery_app worker --loglevel=info --concurrency=2
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - chromadata:/app/chroma_data
+
+  # ── Celery Beat (Scheduler) ────────────────────
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A app.celery_app beat --loglevel=info
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+
+  # ── Next.js Frontend ──────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  redisdata:
+  chromadata:

@@ -1,0 +1,330 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-base: #080b12;
+  --bg-card: #0d1117;
+  --bg-card-hover: #111722;
+  --border: #1e2a3a;
+  --border-glow: #2563eb40;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
+  --accent-blue: #3b82f6;
+  --accent-blue-dim: #1d4ed8;
+  --accent-green: #10b981;
+  --accent-orange: #f59e0b;
+  --accent-red: #ef4444;
+  --accent-purple: #8b5cf6;
+  --glow-blue: 0 0 20px #3b82f620, 0 0 40px #3b82f610;
+  --glow-green: 0 0 20px #10b98120;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: 'Outfit', sans-serif;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Glass card */
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.glass-card:hover {
+  border-color: var(--border-glow);
+  box-shadow: var(--glow-blue);
+}
+
+/* Status pills */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.pill-green {
+  background: #10b98120;
+  color: #10b981;
+  border: 1px solid #10b98130;
+}
+
+.pill-blue {
+  background: #3b82f620;
+  color: #3b82f6;
+  border: 1px solid #3b82f630;
+}
+
+.pill-orange {
+  background: #f59e0b20;
+  color: #f59e0b;
+  border: 1px solid #f59e0b30;
+}
+
+.pill-red {
+  background: #ef444420;
+  color: #ef4444;
+  border: 1px solid #ef444430;
+}
+
+.pill-purple {
+  background: #8b5cf620;
+  color: #8b5cf6;
+  border: 1px solid #8b5cf630;
+}
+
+.pill-gray {
+  background: #47556920;
+  color: #94a3b8;
+  border: 1px solid #47556930;
+}
+
+/* Metric card */
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  transition: all 0.2s;
+}
+
+.metric-card:hover {
+  border-color: var(--border-glow);
+  transform: translateY(-1px);
+  box-shadow: var(--glow-blue);
+}
+
+/* Gradient accents */
+.gradient-text {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 1px;
+  background: linear-gradient(135deg, #3b82f640, #8b5cf640);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Animated pulse dot */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+.pulse-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-green);
+}
+
+.pulse-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent-green);
+  animation: pulse-ring 1.5s infinite;
+}
+
+/* Sidebar nav item */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: all 0.15s;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.nav-item.active {
+  background: #3b82f615;
+  color: var(--accent-blue);
+  border: 1px solid #3b82f625;
+}
+
+/* Table */
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.data-table th {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #0d111714;
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  vertical-align: middle;
+}
+
+.data-table tr:hover td {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+/* Animated progress bar */
+@keyframes progress-fill {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: var(--width);
+  }
+}
+
+.progress-bar {
+  height: 4px;
+  border-radius: 99px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  animation: progress-fill 0.8s ease-out forwards;
+}
+
+/* Button styles */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent-blue);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px #3b82f640;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+/* Health meter ring */
+.health-ring {
+  filter: drop-shadow(0 0 8px currentColor);
+}

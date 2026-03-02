@@ -14,6 +14,8 @@ services:
         sync: false
       - key: LANGFUSE_HOST
         value: https://cloud.langfuse.com
+      - key: ENABLE_RERANKER
+        value: "false"
       - key: EMBEDDING_MODEL
         value: models/text-embedding-004
       - key: LLM_MODEL

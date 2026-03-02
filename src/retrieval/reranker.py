@@ -12,8 +12,45 @@ but too slow to run on the entire corpus. So we:
 1. Retrieve top-20 candidates cheaply with hybrid search
 2. Re-rank top-20 accurately with cross-encoder
 3. Take top-5 for generation
+
+In memory-constrained environments (e.g. Render free tier, 512MB),
+set ENABLE_RERANKER=false to use a lightweight keyword-overlap fallback
+that requires no PyTorch or model loading.
 """
-# CrossEncoder is lazy-imported in _load_model() to reduce startup memory
+import os
+
+
+class LightweightReranker:
+    """
+    Fallback reranker using keyword overlap scoring.
+    No PyTorch, no model download — fits any memory budget.
+    Still provides meaningful re-ranking via term-frequency scoring.
+    """
+
+    def rerank(
+        self,
+        query: str,
+        candidates: list[dict],
+        top_k: int = 5,
+    ) -> list[dict]:
+        if not candidates:
+            return []
+
+        candidates = [dict(c) for c in candidates]
+        query_terms = set(query.lower().split())
+
+        for candidate in candidates:
+            content_lower = candidate["content"].lower()
+            # Score = fraction of query terms found in the chunk
+            matches = sum(1 for t in query_terms if t in content_lower)
+            candidate["rerank_score"] = matches / max(len(query_terms), 1)
+
+        reranked = sorted(candidates, key=lambda x: x["rerank_score"], reverse=True)
+
+        for i, chunk in enumerate(reranked):
+            chunk["final_rank"] = i + 1
+
+        return reranked[:top_k]
 
 
 class CrossEncoderReranker:
@@ -64,3 +101,11 @@ class CrossEncoderReranker:
             chunk["final_rank"] = i + 1
 
         return reranked[:top_k]
+
+
+def get_reranker():
+    """Factory: returns CrossEncoderReranker if enabled, else LightweightReranker."""
+    enable = os.environ.get("ENABLE_RERANKER", "true").lower()
+    if enable in ("false", "0", "no"):
+        return LightweightReranker()
+    return CrossEncoderReranker()

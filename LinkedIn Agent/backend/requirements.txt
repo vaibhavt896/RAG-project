@@ -1,0 +1,43 @@
+# ── Web Framework ────────────────────────────────
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# ── Database ─────────────────────────────────────
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0
+psycopg2-binary==2.9.10
+alembic==1.14.1
+
+# ── Task Queue ───────────────────────────────────
+celery[redis]==5.4.0
+redis==5.2.1
+flower==2.0.1
+
+# ── LinkedIn Automation ──────────────────────────
+playwright==1.49.1
+playwright-stealth==1.0.6
+
+# ── AI / LLM ────────────────────────────────────
+google-generativeai==0.8.4
+
+# ── Embeddings & Vector Store ────────────────────
+sentence-transformers==3.3.1
+scikit-learn==1.6.1
+numpy==1.26.4
+chromadb==0.5.23
+
+# ── Signal Detection ────────────────────────────
+feedparser==6.0.11
+httpx==0.28.1
+
+# ── Email Finding ───────────────────────────────
+requests==2.32.3
+dnspython==2.7.0
+
+# ── Config & Security ───────────────────────────
+python-dotenv==1.0.1
+pydantic==2.10.4
+pydantic-settings==2.7.1
+cryptography==44.0.0
+python-jose[cryptography]==3.3.0

@@ -16,7 +16,7 @@ from .schemas import QueryRequest, QueryResponse, IngestRequest, IngestResponse,
 from ..ingestion.loader import load_document
 from ..ingestion.chunker import create_chunks
 from ..retrieval.hybrid import HybridRetriever
-from ..retrieval.reranker import CrossEncoderReranker
+from ..retrieval.reranker import get_reranker
 from ..citation.tracker import build_citation_map, extract_citations_from_response
 from ..generation.llm import generate_answer, expand_query
 from ..retrieval.edge_cases import detect_unanswerable, detect_sensitive_query, handle_long_document_edge_case
@@ -31,7 +31,7 @@ reranker = None
 async def lifespan(app: FastAPI):
     global retriever, reranker
     retriever = HybridRetriever()
-    reranker = CrossEncoderReranker()
+    reranker = get_reranker()
     yield
     # Cleanup on shutdown
 
