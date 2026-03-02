@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: rag-project-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: LANGFUSE_PUBLIC_KEY
+        sync: false
+      - key: LANGFUSE_SECRET_KEY
+        sync: false
+      - key: LANGFUSE_HOST
+        value: https://cloud.langfuse.com
+      - key: EMBEDDING_MODEL
+        value: models/text-embedding-004
+      - key: LLM_MODEL
+        value: gemini-1.5-flash
+      - key: TOP_K_RETRIEVAL
+        value: 20
+      - key: TOP_K_RERANK
+        value: 5
+      - key: CHUNK_SIZE
+        value: 512
+      - key: CHUNK_OVERLAP
+        value: 64
