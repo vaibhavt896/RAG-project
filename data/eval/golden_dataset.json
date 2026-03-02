@@ -1,0 +1,17 @@
+[
+  {
+    "question": "What was Infosys's total revenue for the fiscal year?",
+    "ground_truth_answer": "Refer to the Infosys annual document for the total revenue figure.",
+    "relevant_doc_ids": []
+  },
+  {
+    "question": "What are the key risk factors mentioned in the SEBI Annual Report?",
+    "ground_truth_answer": "The SEBI Annual Report identifies various regulatory and market risks.",
+    "relevant_doc_ids": []
+  },
+  {
+    "question": "What were the major highlights of the Annual Report 2024-25?",
+    "ground_truth_answer": "The Annual Report 2024-25 covers key financial performance metrics and strategic initiatives.",
+    "relevant_doc_ids": []
+  }
+]
