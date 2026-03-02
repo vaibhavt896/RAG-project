@@ -70,85 +70,90 @@ async def ingest_document(request: IngestRequest):
 @app.post("/query", response_model=QueryResponse)
 async def query(request: QueryRequest):
     """Query the RAG system and get a cited answer."""
-    start_time = time.time()
+    try:
+        start_time = time.time()
 
-    # Edge case: sensitive query
-    if detect_sensitive_query(request.question):
-        raise HTTPException(
-            status_code=400,
-            detail="This query has been flagged for human review."
+        # Edge case: sensitive query
+        if detect_sensitive_query(request.question):
+            raise HTTPException(
+                status_code=400,
+                detail="This query has been flagged for human review."
+            )
+
+        # Query expansion for better recall
+        expanded_queries = await _expand_queries(request.question)
+
+        # Hybrid retrieval (search with original + expanded queries)
+        all_results = retriever.search(request.question, top_k=20)
+        for eq in expanded_queries[:2]:  # Use top 2 expansions
+            eq_results = retriever.search(eq, top_k=10)
+            all_results.extend(eq_results)
+
+        # Deduplicate
+        seen_ids = set()
+        deduped = []
+        for r in all_results:
+            if r["chunk_id"] not in seen_ids:
+                seen_ids.add(r["chunk_id"])
+                deduped.append(r)
+
+        # Re-rank
+        reranked = reranker.rerank(request.question, deduped, top_k=request.top_k)
+
+        # Edge case: unanswerable
+        if detect_unanswerable(request.question, reranked):
+            return QueryResponse(
+                question=request.question,
+                answer="I couldn't find relevant information in the documents to answer this question. Please check if the relevant documents have been ingested.",
+                citations=[],
+                latency_ms=int((time.time() - start_time) * 1000),
+                model_used="none",
+                tokens_used=0,
+            )
+
+        # Handle context length edge case
+        reranked = handle_long_document_edge_case(reranked)
+
+        # Build citation map
+        citation_map = build_citation_map(reranked)
+
+        # Generate answer
+        gen_result = generate_answer(
+            question=request.question,
+            context=citation_map.context_text,
+            model=request.model,
         )
 
-    # Query expansion for better recall
-    expanded_queries = await _expand_queries(request.question)
+        # Extract which citations were used
+        used_refs = extract_citations_from_response(gen_result["answer"])
+        for citation in citation_map.citations:
+            citation.used_in_response = citation.ref_number in used_refs
 
-    # Hybrid retrieval (search with original + expanded queries)
-    all_results = retriever.search(request.question, top_k=20)
-    for eq in expanded_queries[:2]:  # Use top 2 expansions
-        eq_results = retriever.search(eq, top_k=10)
-        all_results.extend(eq_results)
+        # Build response citations (only used ones)
+        response_citations = [
+            CitationResponse(
+                ref_number=c.ref_number,
+                title=c.title,
+                source=c.source,
+                page=c.page,
+                excerpt=c.excerpt,
+            )
+            for c in citation_map.citations
+            if c.used_in_response
+        ]
 
-    # Deduplicate
-    seen_ids = set()
-    deduped = []
-    for r in all_results:
-        if r["chunk_id"] not in seen_ids:
-            seen_ids.add(r["chunk_id"])
-            deduped.append(r)
-
-    # Re-rank
-    reranked = reranker.rerank(request.question, deduped, top_k=request.top_k)
-
-    # Edge case: unanswerable
-    if detect_unanswerable(request.question, reranked):
         return QueryResponse(
             question=request.question,
-            answer="I couldn't find relevant information in the documents to answer this question. Please check if the relevant documents have been ingested.",
-            citations=[],
+            answer=gen_result["answer"],
+            citations=response_citations,
             latency_ms=int((time.time() - start_time) * 1000),
-            model_used="none",
-            tokens_used=0,
+            model_used=gen_result["model"],
+            tokens_used=gen_result["tokens_used"],
         )
-
-    # Handle context length edge case
-    reranked = handle_long_document_edge_case(reranked)
-
-    # Build citation map
-    citation_map = build_citation_map(reranked)
-
-    # Generate answer
-    gen_result = generate_answer(
-        question=request.question,
-        context=citation_map.context_text,
-        model=request.model,
-    )
-
-    # Extract which citations were used
-    used_refs = extract_citations_from_response(gen_result["answer"])
-    for citation in citation_map.citations:
-        citation.used_in_response = citation.ref_number in used_refs
-
-    # Build response citations (only used ones)
-    response_citations = [
-        CitationResponse(
-            ref_number=c.ref_number,
-            title=c.title,
-            source=c.source,
-            page=c.page,
-            excerpt=c.excerpt,
-        )
-        for c in citation_map.citations
-        if c.used_in_response
-    ]
-
-    return QueryResponse(
-        question=request.question,
-        answer=gen_result["answer"],
-        citations=response_citations,
-        latency_ms=int((time.time() - start_time) * 1000),
-        model_used=gen_result["model"],
-        tokens_used=gen_result["tokens_used"],
-    )
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}\n\nTraceback:\n{error_details}")
 
 
 async def _expand_queries(question: str) -> list[str]:
