@@ -37,7 +37,8 @@ def detect_ambiguous_query(question: str) -> dict:
     Returns clarification questions if needed.
     """
     _configure_genai()
-    model = genai.GenerativeModel("gemini-2.0-flash")
+    model_name = os.getenv("LLM_MODEL", "gemini-2.5-flash")
+    model = genai.GenerativeModel(model_name)
     prompt = f"""Is this question clear enough to answer from a document store, or does it need clarification?
 
 Question: {question}

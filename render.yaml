@@ -19,7 +19,7 @@ services:
       - key: EMBEDDING_MODEL
         value: models/gemini-embedding-001
       - key: LLM_MODEL
-        value: gemini-1.5-flash
+        value: gemini-2.5-flash
       - key: TOP_K_RETRIEVAL
         value: 20
       - key: TOP_K_RERANK

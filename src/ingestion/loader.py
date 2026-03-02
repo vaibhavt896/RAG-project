@@ -71,10 +71,18 @@ def load_txt(path: str) -> RawDocument:
 
 
 def load_url(url: str) -> RawDocument:
+    # Use a realistic User-Agent to bypass basic bot protection (403 Forbidden)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://www.google.com/"
+    }
+
     # Detect PDF URLs and handle them properly
     if url.lower().endswith(".pdf"):
         import tempfile
-        response = httpx.get(url, timeout=60, follow_redirects=True)
+        response = httpx.get(url, headers=headers, timeout=60, follow_redirects=True)
         response.raise_for_status()
         with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
             tmp.write(response.content)
@@ -88,7 +96,8 @@ def load_url(url: str) -> RawDocument:
         os.unlink(tmp_path)
         return doc
 
-    response = httpx.get(url, timeout=30, follow_redirects=True)
+    response = httpx.get(url, headers=headers, timeout=30, follow_redirects=True)
+    response.raise_for_status()
     soup = BeautifulSoup(response.text, "html.parser")
     # Remove nav, footer, scripts
     for tag in soup(["nav", "footer", "script", "style", "header"]):

@@ -28,7 +28,7 @@ def generate_answer(
     Returns: {"answer": str, "model": str, "tokens_used": int, "latency_ms": int}
     """
     _configure_genai()
-    model_name = model or os.getenv("LLM_MODEL", "gemini-2.0-flash")
+    model_name = model or os.getenv("LLM_MODEL", "gemini-2.5-flash")
     gemini_model = genai.GenerativeModel(
         model_name=model_name,
         system_instruction=RAG_SYSTEM_PROMPT,
@@ -57,7 +57,8 @@ def generate_answer(
 def expand_query(query: str) -> list[str]:
     """Generate query variations to improve retrieval recall."""
     _configure_genai()
-    gemini_model = genai.GenerativeModel("gemini-2.0-flash")
+    model_name = os.getenv("LLM_MODEL", "gemini-2.5-flash")
+    gemini_model = genai.GenerativeModel(model_name)
     response = gemini_model.generate_content(
         QUERY_EXPANSION_PROMPT.format(query=query),
         generation_config=genai.GenerationConfig(
